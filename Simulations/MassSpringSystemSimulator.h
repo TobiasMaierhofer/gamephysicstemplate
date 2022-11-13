@@ -9,6 +9,25 @@
 #define MIDPOINT 2
 // Do Not Change
 
+class MassPoint : public Simulator {
+public:
+	MassPoint();
+
+	//data Attributes
+	Vec3 position;
+	Vec3 velocity;
+	boolean isFixed;
+};
+class Spring : public Simulator {
+public:
+	Spring();
+
+	//data Attributes
+	int massPoint1;
+	int massPoint2;
+	float initialLength;
+
+};
 
 class MassSpringSystemSimulator:public Simulator{
 public:
@@ -49,6 +68,7 @@ private:
 	float m_fStiffness;
 	float m_fDamping;
 	int m_iIntegrator;
+	int MassPointCounter;
 
 	std::list<MassPoint> massPoints;
 	std::list<Spring> springs;
@@ -59,4 +79,6 @@ private:
 	Point2D m_trackmouse;
 	Point2D m_oldtrackmouse;
 };
+
+
 #endif

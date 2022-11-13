@@ -2,13 +2,27 @@
 
 MassSpringSystemSimulator::MassSpringSystemSimulator()
 {
-	int m_iIntegrator = 0;
-	float m_fDamping = 0.0f;
-	float m_fStiffness = 0.0f;
-	float m_fMass = 0.0f;
-	std::list<MassPoint> massPoints = {};
-	std::list<Spring> springs ={};
+	m_iIntegrator = 0;
+    m_fDamping = 0.0f;
+	m_fStiffness = 0.0f;
+	m_fMass = 0.0f;
+	massPoints;
+	springs;
+	//provides int indices for masspoints
+	MassPointCounter = 0;
 
+}
+
+MassPoint::MassPoint() {
+	position = NULL;
+	velocity = NULL;
+	isFixed = NULL;
+}
+
+Spring::Spring() {
+	massPoint1 = NULL;
+	massPoint2 = NULL;
+	initialLength = 0;
 }
 
 const char* MassSpringSystemSimulator::getTestCasesStr()
@@ -121,33 +135,59 @@ void MassSpringSystemSimulator::setDampingFactor(float damping)
 
 int MassSpringSystemSimulator::addMassPoint(Vec3 position, Vec3 Velocity, bool isFixed)
 {
+	//TODO get the constructors to work
+	MassPoint Masspoint;
+	Masspoint.position = position;
+	Masspoint.velocity = Velocity;
+	Masspoint.isFixed = isFixed;
+	//add new MassPoint to the masspoints list of the massspringsystem
+	this->massPoints.push_back(Masspoint);
+	this->MassPointCounter++;
 	return 0;
 }
 
 void MassSpringSystemSimulator::addSpring(int masspoint1, int masspoint2, float initialLength)
 {
+	Spring spring;
+	spring.massPoint1 = masspoint1;
+	spring.massPoint2 = masspoint2;
+	spring.initialLength = initialLength;
+	//add new spring to the Springs list of the massspringsystem
+	this->springs.push_back(spring);
+	return;
 }
 
 int MassSpringSystemSimulator::getNumberOfMassPoints()
 {
-	return 0;
+	return this->MassPointCounter;
 }
 
 int MassSpringSystemSimulator::getNumberOfSprings()
 {
-	return 0;
+	return this->springs.size();
 }
 
 Vec3 MassSpringSystemSimulator::getPositionOfMassPoint(int index)
 {
-	return Vec3();
+    // TODO
+	Vec3 pos;
+	auto massPoint = this->massPoints.begin();
+	std::advance(massPoint, index);
+	pos =(MassPoint) massPoint.position;
+	return pos;
 }
 
 Vec3 MassSpringSystemSimulator::getVelocityOfMassPoint(int index)
 {
-	return Vec3();
+	// TODO
+	Vec3 vel;
+	auto massPoint = this->massPoints.begin();
+	std::advance(massPoint, index);
+	vel = (MassPoint)massPoint.velocity;
+	return vel;
 }
 
 void MassSpringSystemSimulator::applyExternalForce(Vec3 force)
 {
+	//I belive this might be to calculate the force variable used in the accelaration calculation
 }
