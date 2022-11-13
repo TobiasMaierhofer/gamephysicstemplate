@@ -1,6 +1,7 @@
 #ifndef MASSSPRINGSYSTEMSIMULATOR_h
 #define MASSSPRINGSYSTEMSIMULATOR_h
 #include "Simulator.h"
+#include <list>
 
 // Do Not Change
 #define EULER 0
@@ -48,6 +49,9 @@ private:
 	float m_fStiffness;
 	float m_fDamping;
 	int m_iIntegrator;
+
+	std::list<MassPoint> massPoints;
+	std::list<Spring> springs;
 
 	// UI Attributes
 	Vec3 m_externalForce;
