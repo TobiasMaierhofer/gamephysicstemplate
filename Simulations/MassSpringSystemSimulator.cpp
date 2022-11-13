@@ -6,20 +6,38 @@ MassSpringSystemSimulator::MassSpringSystemSimulator()
 	float m_fDamping = 0.0f;
 	float m_fStiffness = 0.0f;
 	float m_fMass = 0.0f;
+	std::list<MassPoint> massPoints = {};
+	std::list<Spring> springs ={};
 
 }
 
 const char* MassSpringSystemSimulator::getTestCasesStr()
 {
-	return "Demo1,Demo2,Demo3";
+	return "Demo1,Demo2,Demo3,Demo4";
 }
 
 void MassSpringSystemSimulator::initUI(DrawingUtilitiesClass* DUC)
 {
+	this->DUC = DUC;
+	switch (m_iTestCase)
+	{
+	case 0:break;
+	case 1:
+		//TwAddVarRW(DUC->g_pTweakBar, "Num Spheres", TW_TYPE_INT32, &m_iNumSpheres, "min=1");
+		//TwAddVarRW(DUC->g_pTweakBar, "Sphere Size", TW_TYPE_FLOAT, &m_fSphereSize, "min=0.01 step=0.01");
+		break;
+	case 2:break;
+	case 3:break;
+	default:break;
+	}
 }
 
 void MassSpringSystemSimulator::reset()
 {
+	m_mouse.x = m_mouse.y = 0;
+	m_trackmouse.x = m_trackmouse.y = 0;
+	m_oldtrackmouse.x = m_oldtrackmouse.y = 0;
+	//Bin Mir nicht ganz sicher was diese funktion eig machen soll
 }
 
 void MassSpringSystemSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateContext)
@@ -59,6 +77,17 @@ void MassSpringSystemSimulator::externalForcesCalculations(float timeElapsed)
 
 void MassSpringSystemSimulator::simulateTimestep(float timeStep)
 {
+	// update current setup for each frame
+	switch (this->m_iIntegrator)
+	{// handling different Integration methods
+	//leap frog method
+	case 1:break;
+	//midpoint method
+	case 2:break;
+    //Euler method
+	default:
+		break;
+	}
 }
 
 void MassSpringSystemSimulator::onClick(int x, int y)
