@@ -105,13 +105,41 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep)
 		break;
     //Euler method
 	default:
-		//1.update position: newPos = oldPos + velocity*timestep
-		//2.calculate direction vectors
+		list<Spring>::iterator it = this->springs.begin();
+		//new position and velocity values for masspoint 1 of the current spring
+		Vec3 newPos1;
+		Vec3 newVel1;
+		//new position and velocity values for masspoint 2 of the current spring
+		Vec3 newPos2;
+		Vec3 newVel2;
+
+		for (int i = 1; i <= springs.size(); i++) {
+			Spring current = *it;
+			//1.update position: newPos = oldPos + velocity*timestep
+			newPos1= this->getPositionOfMassPoint(current.massPoint1) + this->getVelocityOfMassPoint(current.massPoint1) * timeStep;
+			newPos2 = this->getPositionOfMassPoint(current.massPoint2) + this->getVelocityOfMassPoint(current.massPoint2) * timeStep;
+			//2.calculate direction vectors
+			Vec3 dir1 = this->getPositionOfMassPoint(current.massPoint1)- this->getPositionOfMassPoint(current.massPoint2);
+			Vec3 dir2 = this->getPositionOfMassPoint(current.massPoint2) - this->getPositionOfMassPoint(current.massPoint1);
 		//3.calculate length of direction vectors
+			float l = sqrt(dir1.x ^ 2 + dir1.y ^ 2 + dir1.z ^ 2);
 		//4.normalize direction vectors
+			Vec3 dir1norm = dir1 / l;
+			Vec3 dir2norm = dir1norm * -1;
 		//5.calculate Forces at origin position
-		//6.calculate accelaration
+			Vec3 f1 =-this->m_fStiffness(l - current.initialLength) * dir1norm;
+			Vec3 f2 = f1 * -1;
+		//6.calculate acceleration
+			Vec3 a1 = f1 / this->m_fMass;
+			Vec3 a2 = f2 / this->m_fMass;
 		//7.calculate new velocity: newVel = oldVel + accelaration*timestep
+			newVel1 = this->getVelocityOfMassPoint(current.massPoint1) + a1 * timeStep;
+			newVel2 = this->getVelocityOfMassPoint(current.massPoint2) + a2 * timeStep;
+			//set iterator it to the next spring
+			std::advance(it, 1);
+			//set the values of the masspoints to newPos1+2 and newVel1+2
+			//TODO
+		}
 		break;
 	}
 }
@@ -155,7 +183,7 @@ int MassSpringSystemSimulator::addMassPoint(Vec3 position, Vec3 Velocity, bool i
 	//add new MassPoint to the masspoints list of the massspringsystem
 	this->massPoints.push_back(Masspoint);
 	this->MassPointCounter++;
-	return 0;
+	return MassPointCounter;
 }
 
 void MassSpringSystemSimulator::addSpring(int masspoint1, int masspoint2, float initialLength)
