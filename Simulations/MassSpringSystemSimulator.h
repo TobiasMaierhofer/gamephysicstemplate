@@ -36,7 +36,9 @@ public:
 	int getNumberOfMassPoints();
 	int getNumberOfSprings();
 	Vec3 getPositionOfMassPoint(int index);
+	void setPositionOfMassPoint(Vec3 position,int index);
 	Vec3 getVelocityOfMassPoint(int index);
+	void setVelocityOfMassPOint(Vec3 velocity,int index);
 	void applyExternalForce(Vec3 force);
 	
 	// Do Not Change

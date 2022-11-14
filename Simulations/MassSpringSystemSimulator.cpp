@@ -58,21 +58,46 @@ void MassSpringSystemSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateCont
 
 void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 {
+	MassSpringSystemSimulator msss;
+	msss.setMass(10.0f);
+	msss.setDampingFactor(0.0f);
+	msss.setStiffness(40.0f);
+	msss.applyExternalForce(Vec3(0, 0, 0));
+	int p0 = msss.addMassPoint(Vec3(0.0, 0.0f, 0), Vec3(-1.0, 0.0f, 0), false);
+	int p1 = msss.addMassPoint(Vec3(0.0, 2.0f, 0), Vec3(1.0, 0.0f, 0), false);
+	msss.addSpring(p0, p1, 1.0);
+
 	m_iTestCase = testCase;
 	switch (m_iTestCase)
 	{
 	case 0:
 		cout << "Demo 1!\n";
-		//m_vfMovableObjectPos = Vec3(0, 0, 0);
-		//m_vfRotate = Vec3(0, 0, 0);
+		m_iIntegrator = 0;
+		msss.simulateTimestep(0.1f);
+		cout << "After an Euler Step:\n";
+		cout << "Point 0: Vel = " << msss.getVelocityOfMassPoint(p0) << ", Pos = " << msss.getPositionOfMassPoint(p0) << "\n";
+		cout << "Point 1: Vel = " << msss.getVelocityOfMassPoint(p1) << ", Pos = " << msss.getPositionOfMassPoint(p1) << "\n";
+		m_iIntegrator = 2;
+		msss.simulateTimestep(0.1f);
+		cout << "After a MidPoint Step:\n";
+		cout << "Point 0: Vel = " << msss.getVelocityOfMassPoint(p0) << ", Pos = " << msss.getPositionOfMassPoint(p0) << "\n";
+		cout << "Point 1: Vel = " << msss.getVelocityOfMassPoint(p1) << ", Pos = " << msss.getPositionOfMassPoint(p1) << "\n";
 		break;
 	case 1:
 		cout << "Demo 2!\n";
-		//m_iNumSpheres = 100;
-		//m_fSphereSize = 0.05f;
+		m_iIntegrator = 0;
+		msss.simulateTimestep(0.005f);
+		cout << "After an Euler Step:\n";
+		cout << "Point 0: Vel = " << msss.getVelocityOfMassPoint(p0) << ", Pos = " << msss.getPositionOfMassPoint(p0) << "\n";
+		cout << "Point 1: Vel = " << msss.getVelocityOfMassPoint(p1) << ", Pos = " << msss.getPositionOfMassPoint(p1) << "\n";
 		break;
 	case 2:
 		cout << "Demo 3!\n";
+		m_iIntegrator = 2;
+		msss.simulateTimestep(0.005f);
+		cout << "After a MidPoint Step:\n";
+		cout << "Point 0: Vel = " << msss.getVelocityOfMassPoint(p0) << ", Pos = " << msss.getPositionOfMassPoint(p0) << "\n";
+		cout << "Point 1: Vel = " << msss.getVelocityOfMassPoint(p1) << ", Pos = " << msss.getPositionOfMassPoint(p1) << "\n";
 		break;
 	case 3:
 		cout << "Demo 4!\n";
@@ -88,6 +113,20 @@ void MassSpringSystemSimulator::externalForcesCalculations(float timeElapsed)
 
 void MassSpringSystemSimulator::simulateTimestep(float timeStep)
 {
+	list<Spring>::iterator it = this->springs.begin();
+	//midstep position and velocity values for masspoint 1 of the current spring
+	Vec3 midPos1;
+	Vec3 midVel1;
+	//midstep position and velocity values for masspoint 2 of the current spring
+	Vec3 midPos2;
+	Vec3 midVel2;
+	//new position and velocity values for masspoint 1 of the current spring
+	Vec3 newPos1;
+	Vec3 newVel1;
+	//new position and velocity values for masspoint 2 of the current spring
+	Vec3 newPos2;
+	Vec3 newVel2;
+
 	// update current setup for each frame
 	switch (this->m_iIntegrator)
 	{// handling different Integration methods
@@ -95,23 +134,88 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep)
 	case 1:break;
 	//midpoint method
 	case 2:
-		//1.calculate acceleration at start
-		//2.calculate position at midpoint: midPos = oldPos + (1/2)*timestep * oldVel
-		//3.Calculate Forces at midpoint
-		//5.Calculate accelaration at midpoint
-		//6.calculate velocity at midpoint
-		//7.Calculate new Pos at full timestep: newPos = oldPos + timestep*midVel
-		//8.Calculate new Velocity at full timestep: newVel: oldVel + timestep*midAccelaration
+		//list<Spring>::iterator it = this->springs.begin();
+		//midstep position and velocity values for masspoint 1 of the current spring
+		//Vec3 midPos1;
+		//Vec3 midVel1;
+		//midstep position and velocity values for masspoint 2 of the current spring
+		//Vec3 midPos2;
+		//Vec3 midVel2;
+		//new position and velocity values for masspoint 1 of the current spring
+		//Vec3 newPos1;
+		//Vec3 newVel1;
+		//new position and velocity values for masspoint 2 of the current spring
+		//Vec3 newPos2;
+		//Vec3 newVel2;
+
+		for (int i = 1; i <= springs.size(); i++) {
+			Spring current = *it;
+
+			//1.calculate acceleration at start
+			//1.2.calculate direction vectors
+			Vec3 dir1 = this->getPositionOfMassPoint(current.massPoint1) - this->getPositionOfMassPoint(current.massPoint2);
+			Vec3 dir2 = this->getPositionOfMassPoint(current.massPoint2) - this->getPositionOfMassPoint(current.massPoint1);
+			//1.3.calculate length of direction vectors
+			float l = dir1.x + dir1.y + dir1.z;
+			if (l < 0.0f) {
+				l = -l;
+			}
+			//1.4.normalize direction vectors
+			Vec3 dir1norm = dir1 / l;
+			Vec3 dir2norm = dir1norm * -1;
+			//1.5.calculate Forces at origin position
+			Vec3 f1 = -this->m_fStiffness * (l - current.initialLength) * dir1norm;
+			Vec3 f2 = f1 * -1;
+			//1.6.calculate acceleration
+			Vec3 a1 = f1 / this->m_fMass;
+			Vec3 a2 = f2 / this->m_fMass;
+			//2.calculate position at midpoint: midPos = oldPos + (1/2)*timestep * oldVel
+			midPos1 = this->getPositionOfMassPoint(current.massPoint1) + (1 / 2) * timeStep * this->getVelocityOfMassPoint(current.massPoint1);
+			midPos2 = this->getPositionOfMassPoint(current.massPoint2) + (1 / 2) * timeStep * this->getVelocityOfMassPoint(current.massPoint2);;
+			//3.Calculate direction vectors at midpoint
+			Vec3 dir1m = midPos1 - midPos2;
+			Vec3 dir2m = midPos2 - midPos1;
+			//4.calculate length of direction vectors at midpoint
+			float lm = dir1m.x + dir1m.y + dir1m.z;
+			if (lm < 0.0f) {
+				lm = -lm;
+			}
+			//5. normalize direction vectors at midpoint
+			Vec3 dir1normm = dir1m / lm;
+			Vec3 dir2normm = dir1normm * -1;
+			//6.calculate Forces at midpoint
+			Vec3 f1m = -this->m_fStiffness * (lm - current.initialLength) * dir1normm;
+			Vec3 f2m = f1m * -1;
+			//7.Calculate acceleration at midpoint
+			Vec3 a1m = f1m / this->m_fMass;
+			Vec3 a2m = f2m / this->m_fMass;
+			//8.calculate velocity at midpoint
+			Vec3 midVel1 = this->getVelocityOfMassPoint(current.massPoint1) + a1 * timeStep;
+			Vec3 midVel2 = this->getVelocityOfMassPoint(current.massPoint2) + a2 * timeStep;;
+			//7.Calculate new Pos at full timestep: newPos = oldPos + timestep*midVel
+			newPos1 = this->getPositionOfMassPoint(current.massPoint1) + timeStep * midVel1;
+			newPos2 = this->getPositionOfMassPoint(current.massPoint2) + timeStep * midVel2;
+			//8.Calculate new Velocity at full timestep: newVel: oldVel + timestep*midAccelaration
+			newVel1 = this->getVelocityOfMassPoint(current.massPoint1) + timeStep * a1m;
+			newVel2 = this->getVelocityOfMassPoint(current.massPoint2) + timeStep * a2m;
+			//set the values of the masspoints to newPos1+2 and newVel1+2
+			this->setPositionOfMassPoint(newPos1, current.massPoint1);
+			this->setVelocityOfMassPOint(newVel1, current.massPoint1);
+			this->setPositionOfMassPoint(newPos2, current.massPoint2);
+			this->setVelocityOfMassPOint(newVel2, current.massPoint2);
+			//set iterator it to the next spring
+			std::advance(it, 1);
+		}
 		break;
     //Euler method
 	default:
-		list<Spring>::iterator it = this->springs.begin();
+		//list<Spring>::iterator it = this->springs.begin();
 		//new position and velocity values for masspoint 1 of the current spring
-		Vec3 newPos1;
-		Vec3 newVel1;
+		//Vec3 newPos1;
+		//Vec3 newVel1;
 		//new position and velocity values for masspoint 2 of the current spring
-		Vec3 newPos2;
-		Vec3 newVel2;
+		//Vec3 newPos2;
+		//Vec3 newVel2;
 
 		for (int i = 1; i <= springs.size(); i++) {
 			Spring current = *it;
@@ -122,12 +226,15 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep)
 			Vec3 dir1 = this->getPositionOfMassPoint(current.massPoint1)- this->getPositionOfMassPoint(current.massPoint2);
 			Vec3 dir2 = this->getPositionOfMassPoint(current.massPoint2) - this->getPositionOfMassPoint(current.massPoint1);
 		//3.calculate length of direction vectors
-			float l = sqrt(dir1.x ^ 2 + dir1.y ^ 2 + dir1.z ^ 2);
+			float l = dir1.x + dir1.y + dir1.z;
+			if (l < 0.0f) {
+				l = -l;
+			}
 		//4.normalize direction vectors
 			Vec3 dir1norm = dir1 / l;
 			Vec3 dir2norm = dir1norm * -1;
 		//5.calculate Forces at origin position
-			Vec3 f1 =-this->m_fStiffness(l - current.initialLength) * dir1norm;
+			Vec3 f1 = -this->m_fStiffness * (l - current.initialLength) * dir1norm;
 			Vec3 f2 = f1 * -1;
 		//6.calculate acceleration
 			Vec3 a1 = f1 / this->m_fMass;
@@ -135,10 +242,14 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep)
 		//7.calculate new velocity: newVel = oldVel + accelaration*timestep
 			newVel1 = this->getVelocityOfMassPoint(current.massPoint1) + a1 * timeStep;
 			newVel2 = this->getVelocityOfMassPoint(current.massPoint2) + a2 * timeStep;
+			//set the values of the masspoints to newPos1+2 and newVel1+2
+			this->setPositionOfMassPoint(newPos1, current.massPoint1);
+			this->setVelocityOfMassPOint(newVel1, current.massPoint1);
+			this->setPositionOfMassPoint(newPos2, current.massPoint2);
+			this->setVelocityOfMassPOint(newVel2, current.massPoint2);
 			//set iterator it to the next spring
 			std::advance(it, 1);
-			//set the values of the masspoints to newPos1+2 and newVel1+2
-			//TODO
+			
 		}
 		break;
 	}
@@ -216,6 +327,14 @@ Vec3 MassSpringSystemSimulator::getPositionOfMassPoint(int index)
 	return result.position;
 }
 
+void MassSpringSystemSimulator::setPositionOfMassPoint(Vec3 position,int index)
+{
+	list<MassPoint>::iterator it = this->massPoints.begin();
+	std::advance(it, index);
+	MassPoint result = *it;
+	result.position = position;
+}
+
 Vec3 MassSpringSystemSimulator::getVelocityOfMassPoint(int index)
 {
 	
@@ -223,6 +342,14 @@ Vec3 MassSpringSystemSimulator::getVelocityOfMassPoint(int index)
 	std::advance(it, index);
 	MassPoint result = *it;
 	return result.velocity;
+}
+
+void MassSpringSystemSimulator::setVelocityOfMassPOint(Vec3 velocity, int index)
+{
+	list<MassPoint>::iterator it = this->massPoints.begin();
+	std::advance(it, index);
+	MassPoint result = *it;
+	result.velocity = velocity;
 }
 
 void MassSpringSystemSimulator::applyExternalForce(Vec3 force)
