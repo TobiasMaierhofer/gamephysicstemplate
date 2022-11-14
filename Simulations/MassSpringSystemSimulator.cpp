@@ -134,21 +134,8 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep)
 	case 1:break;
 	//midpoint method
 	case 2:
-		//list<Spring>::iterator it = this->springs.begin();
-		//midstep position and velocity values for masspoint 1 of the current spring
-		//Vec3 midPos1;
-		//Vec3 midVel1;
-		//midstep position and velocity values for masspoint 2 of the current spring
-		//Vec3 midPos2;
-		//Vec3 midVel2;
-		//new position and velocity values for masspoint 1 of the current spring
-		//Vec3 newPos1;
-		//Vec3 newVel1;
-		//new position and velocity values for masspoint 2 of the current spring
-		//Vec3 newPos2;
-		//Vec3 newVel2;
 
-		for (int i = 1; i <= springs.size(); i++) {
+		for (int i = 0; i < springs.size(); i++) {
 			Spring current = *it;
 
 			//1.calculate acceleration at start
@@ -209,15 +196,8 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep)
 		break;
     //Euler method
 	default:
-		//list<Spring>::iterator it = this->springs.begin();
-		//new position and velocity values for masspoint 1 of the current spring
-		//Vec3 newPos1;
-		//Vec3 newVel1;
-		//new position and velocity values for masspoint 2 of the current spring
-		//Vec3 newPos2;
-		//Vec3 newVel2;
 
-		for (int i = 1; i <= springs.size(); i++) {
+		for (int i = 0; i < springs.size(); i++) {
 			Spring current = *it;
 			//1.update position: newPos = oldPos + velocity*timestep
 			newPos1= this->getPositionOfMassPoint(current.massPoint1) + this->getVelocityOfMassPoint(current.massPoint1) * timeStep;
@@ -228,7 +208,7 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep)
 		//3.calculate length of direction vectors
 			float l = dir1.x + dir1.y + dir1.z;
 			if (l < 0.0f) {
-				l = -l;
+				l = l * -1.0f;
 			}
 		//4.normalize direction vectors
 			Vec3 dir1norm = dir1 / l;
@@ -239,7 +219,7 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep)
 		//6.calculate acceleration
 			Vec3 a1 = f1 / this->m_fMass;
 			Vec3 a2 = f2 / this->m_fMass;
-		//7.calculate new velocity: newVel = oldVel + accelaration*timestep
+		//7.calculate new velocity: newVel = oldVel + acceleration*timestep
 			newVel1 = this->getVelocityOfMassPoint(current.massPoint1) + a1 * timeStep;
 			newVel2 = this->getVelocityOfMassPoint(current.massPoint2) + a2 * timeStep;
 			//set the values of the masspoints to newPos1+2 and newVel1+2
@@ -320,40 +300,50 @@ int MassSpringSystemSimulator::getNumberOfSprings()
 
 Vec3 MassSpringSystemSimulator::getPositionOfMassPoint(int index)
 {
-  
+	MassPoint ende;
+	this->massPoints.push_back(ende);
 	list<MassPoint>::iterator it = this->massPoints.begin();
 	std::advance(it, index);
 	//this doesnt work
 	MassPoint result = *it;
+	this->massPoints.pop_back();
 	return result.position;
 }
 
 void MassSpringSystemSimulator::setPositionOfMassPoint(Vec3 position,int index)
 {
+	MassPoint ende;
+	this->massPoints.push_back(ende);
 	list<MassPoint>::iterator it = this->massPoints.begin();
 	std::advance(it, index);
 	//this doesnt work
 	MassPoint result = *it;
 	result.position = position;
+	this->massPoints.pop_back();
 }
 
 Vec3 MassSpringSystemSimulator::getVelocityOfMassPoint(int index)
 {
-	
+	MassPoint ende;
+	this->massPoints.push_back(ende);
 	list<MassPoint>::iterator it = this->massPoints.begin();
 	std::advance(it, index);
 	//this doesnt work
 	MassPoint result = *it;
+	this->massPoints.pop_back();
 	return result.velocity;
 }
 
 void MassSpringSystemSimulator::setVelocityOfMassPOint(Vec3 velocity, int index)
 {
+	MassPoint ende;
+	this->massPoints.push_back(ende);
 	list<MassPoint>::iterator it = this->massPoints.begin();
 	std::advance(it, index);
 	//this doesnt work
 	MassPoint result = *it;
 	result.velocity = velocity;
+	this->massPoints.pop_back();
 }
 
 void MassSpringSystemSimulator::applyExternalForce(Vec3 force)
