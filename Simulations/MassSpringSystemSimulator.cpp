@@ -323,6 +323,7 @@ Vec3 MassSpringSystemSimulator::getPositionOfMassPoint(int index)
   
 	list<MassPoint>::iterator it = this->massPoints.begin();
 	std::advance(it, index);
+	//this doesnt work
 	MassPoint result = *it;
 	return result.position;
 }
@@ -331,6 +332,7 @@ void MassSpringSystemSimulator::setPositionOfMassPoint(Vec3 position,int index)
 {
 	list<MassPoint>::iterator it = this->massPoints.begin();
 	std::advance(it, index);
+	//this doesnt work
 	MassPoint result = *it;
 	result.position = position;
 }
@@ -340,6 +342,7 @@ Vec3 MassSpringSystemSimulator::getVelocityOfMassPoint(int index)
 	
 	list<MassPoint>::iterator it = this->massPoints.begin();
 	std::advance(it, index);
+	//this doesnt work
 	MassPoint result = *it;
 	return result.velocity;
 }
@@ -348,6 +351,7 @@ void MassSpringSystemSimulator::setVelocityOfMassPOint(Vec3 velocity, int index)
 {
 	list<MassPoint>::iterator it = this->massPoints.begin();
 	std::advance(it, index);
+	//this doesnt work
 	MassPoint result = *it;
 	result.velocity = velocity;
 }
