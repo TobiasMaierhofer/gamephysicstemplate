@@ -13,18 +13,6 @@ MassSpringSystemSimulator::MassSpringSystemSimulator()
 
 }
 
-MassPoint::MassPoint() {
-	position = NULL;
-	velocity = NULL;
-	isFixed = NULL;
-}
-
-Spring::Spring() {
-	massPoint1 = NULL;
-	massPoint2 = NULL;
-	initialLength = 0;
-}
-
 const char* MassSpringSystemSimulator::getTestCasesStr()
 {
 	return "Demo1,Demo2,Demo3,Demo4";
@@ -193,22 +181,20 @@ int MassSpringSystemSimulator::getNumberOfSprings()
 
 Vec3 MassSpringSystemSimulator::getPositionOfMassPoint(int index)
 {
-    // TODO
-	Vec3 pos;
-	auto massPoint = this->massPoints.begin();
-	std::advance(massPoint, index);
-	pos =(MassPoint) massPoint.position;
-	return pos;
+  
+	list<MassPoint>::iterator it = this->massPoints.begin();
+	std::advance(it, index);
+	MassPoint result = *it;
+	return result.position;
 }
 
 Vec3 MassSpringSystemSimulator::getVelocityOfMassPoint(int index)
 {
-	// TODO
-	Vec3 vel;
-	auto massPoint = this->massPoints.begin();
-	std::advance(massPoint, index);
-	vel = (MassPoint)massPoint.velocity;
-	return vel;
+	
+	list<MassPoint>::iterator it = this->massPoints.begin();
+	std::advance(it, index);
+	MassPoint result = *it;
+	return result.velocity;
 }
 
 void MassSpringSystemSimulator::applyExternalForce(Vec3 force)

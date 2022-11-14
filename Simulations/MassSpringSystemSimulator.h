@@ -1,6 +1,8 @@
 #ifndef MASSSPRINGSYSTEMSIMULATOR_h
 #define MASSSPRINGSYSTEMSIMULATOR_h
 #include "Simulator.h"
+#include "MassPoint.h"
+#include "Spring.h"
 #include <list>
 
 // Do Not Change
@@ -8,26 +10,6 @@
 #define LEAPFROG 1
 #define MIDPOINT 2
 // Do Not Change
-
-class MassPoint : public Simulator {
-public:
-	MassPoint();
-
-	//data Attributes
-	Vec3 position;
-	Vec3 velocity;
-	boolean isFixed;
-};
-class Spring : public Simulator {
-public:
-	Spring();
-
-	//data Attributes
-	int massPoint1;
-	int massPoint2;
-	float initialLength;
-
-};
 
 class MassSpringSystemSimulator:public Simulator{
 public:
